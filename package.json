@@ -1,0 +1,29 @@
+{
+  "name": "set-env",
+  "version": "0.0.1",
+  "description": "A utility command for creating environment variables from a json configuration file.",
+  "bin": {
+    "set-env": "./bin/set-env"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jgable/node-set-env.git"
+  },
+  "keywords": [
+    "environment",
+    "variables",
+    "configuration"
+  ],
+  "author": "Jacob Gable",
+  "license": "MIT",
+  "dependencies": {
+    "coffee-script": "~1.3.3"
+  },
+  "devDependencies": {
+    "mocha": "~1.3.0",
+    "should": "*"
+  }
+}
