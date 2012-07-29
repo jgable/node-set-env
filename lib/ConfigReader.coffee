@@ -17,7 +17,7 @@ class ConfigReader
   constructor: (@loader = FileLoader, @extension = ".json") ->
 
   readFile: (next, fileName = "./env") ->
-
+    # This will fail hard for any extensions less than 5 characters.
     fileName = fileName + @extension if fileName.slice(-5) != @extension.slice(-5)
     
     (new @loader fileName).getFileData next

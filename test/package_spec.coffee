@@ -1,11 +1,13 @@
 should = require "should"
-setEnv = require "../lib/index"
 fs = require "fs"
 path = require "path"
 
+setEnv = require "../lib/index"
 ConfigReader = require "../lib/ConfigReader"
 
 # TODO: Move setting up to another file?
+# TODO: Mock out the file system with injectr?
+
 defaultConfig = 
     prop1: "1"
     prop2: "2"
