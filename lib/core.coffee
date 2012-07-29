@@ -1,20 +1,9 @@
-fs = require "fs"
-spawn = (require "child_process").spawn
-
+EnvironmentSetter = require "./EnvironmentSetter"
 ConfigReader = require "./ConfigReader"
 
 module.exports = 
-    run: (args) ->
-        confFile = args[0]
+    run: (fileName, reader = new ConfigReader, setter = new EnvironmentSetter) ->
+        setFileData = (fileData) ->
+            setter.setVariables fileData    
 
-        reader = new ConfigReader
-
-        fileData = reader.readFile confFile
-
-        for own key, val in fileData
-            line = "#{key}=\"#{val}\""
-            # May need to switch to exec here, haven't tested.
-            spawn("export", [line]);
-
-
-		
+        reader.readFile setFileData, fileName

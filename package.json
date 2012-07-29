@@ -5,6 +5,7 @@
   "bin": {
     "set-env": "./bin/set-env"
   },
+  "engine": "0.8.*",
   "scripts": {
     "test": "mocha"
   },

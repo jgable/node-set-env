@@ -1,0 +1,4 @@
+#!/usr/bin/env coffee
+
+setEnv = require '../lib/'
+setEnv.core.run process.argv[2]

@@ -5,7 +5,41 @@ path = require "path"
 
 ConfigReader = require "../lib/ConfigReader"
 
-# TODO: Move mocks to another file.
+# TODO: Move setting up to another file?
+defaultConfig = 
+    prop1: "1"
+    prop2: "2"
+    prop3: "3"
+otherConfig = 
+    propA: "A"
+    propB: "B"
+    propC: "C"
+
+createTestFiles = (done) ->
+    fs.writeFile "./env.json", JSON.stringify(defaultConfig, null, 4), (err) ->
+        throw err if err
+
+        fs.exists "./env.json", (exists) ->
+            throw "File not created" if !exists
+
+            # Create our other.json
+            fs.writeFile "./other.json", JSON.stringify(otherConfig, null, 4), (otherErr) ->
+                throw otherErr if otherErr
+
+                fs.exists "./other.json", (otherExists) ->
+                    throw "File not created (other)" if !otherExists
+                    # Start our tests
+                    do done
+
+removeTestFiles = (done) ->
+    # Delete test files.
+    fs.unlink "./env.json", (err) ->
+        throw err if err
+
+        fs.unlink "./other.json", (er2) ->
+            throw er2 if er2
+
+            do done
 
 describe "set-env", ->
     it "is an executable bin command"
@@ -13,37 +47,10 @@ describe "set-env", ->
     it "has a core module", ->
         should.exist setEnv.core
 
-describe "core", ->
-    it "has a run method that takes in a configuration file name as a parameter.", ->
-        should.exist setEnv.core.run
-    
 describe "ConfigReader", ->
-    defaultConfig = 
-        prop1: "1"
-        prop2: "2"
-        prop3: "3"
-    otherConfig = 
-        propA: "A"
-        propB: "B"
-        propC: "C"
-
     before (done) ->
-
-        # Create our testing env.json in the root
-        fs.writeFile "./env.json", JSON.stringify(defaultConfig, null, 4), (err) ->
-            throw err if err
-
-            fs.exists "./env.json", (exists) ->
-                throw "File not created" if !exists
-
-                # Create our other.json
-                fs.writeFile "./other.json", JSON.stringify(otherConfig, null, 4), (otherErr) ->
-                    throw otherErr if otherErr
-
-                    fs.exists "./other.json", (otherExists) ->
-                        throw "File not created (other)" if !otherExists
-                        # Start our tests
-                        do done
+        createTestFiles done
+        
 
     it "treats file names as relative to the root directory of a node application.", -> true
 
@@ -85,12 +92,50 @@ describe "ConfigReader", ->
         reader.readFile thenTestResult
 
     after (done) ->
-        # Delete test files.
-        fs.unlink "./env.json", (err) ->
-            throw err if err
+        removeTestFiles done
 
-            fs.unlink "./other.json", (er2) ->
-                throw er2 if er2
+class FakeConfigReader
+    constructor: (@returnData = { fake1: "1"}) ->
 
-                do done
+    readFile: (next, fileName) ->
+        @fileNamePassed = fileName
+        next @returnData
+
+
+class FakeEnvironmentSetter
+    setVariables: (data) ->
+        @dataPassed = data
+
+
+describe "core.run", ->
+    before (done) ->
+        createTestFiles done
+
+    after (done) ->
+        removeTestFiles done
+
+    it "exists.", ->
+        should.exist setEnv.core.run
+
+    commonCoreRunTest = (readerTest) ->
+        reader = new FakeConfigReader
+        setter = new FakeEnvironmentSetter
+
+        setEnv.core.run "fakefile", reader, setter
+
+        readerTest reader, setter        
+
+    it "loads the passed in file name", (done) ->
+        commonCoreRunTest (reader) ->
+            reader.fileNamePassed.should.equal "fakefile"
+            do done
+
+    it "sets variables", (done) ->
+        commonCoreRunTest (reader, setter) ->
+            should.exist setter.dataPassed
+            setter.dataPassed.fake1.should.equal "1"
+            do done
+
+
+
 

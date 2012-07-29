@@ -7,8 +7,8 @@ class FileLoader
 
   getFileData: (next) ->
 
-    fs.readFile @fullPath, (err, data) ->
-        throw err if err
+    fs.readFile @fullPath, (err, data) =>
+        throw new Error("Failed to open file: #{@fullPath}") if err
 
         next JSON.parse data
 
